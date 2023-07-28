@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>二分法の計算とグラフ</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <h1>二分法の計算とグラフ</h1>
+  
+  <label for="function">関数:</label>
+  <input type="text" id="function" placeholder="例: x^2 - 4"><br>
+  
+  <label for="lowerBound">下限値:</label>
+  <input type="number" id="lowerBound" step="any"><br>
+  
+  <label for="upperBound">上限値:</label>
+  <input type="number" id="upperBound" step="any"><br>
+  
+  <label for="tolerance">許容誤差:</label>
+  <input type="number" id="tolerance" step="any"><br>
+  
+  <button onclick="calculate()">計算</button>
+  
+  <h2>計算結果</h2>
+  <div id="result"></div>
+  
+  <h2>グラフ</h2>
+  <canvas id="graph" width="400" height="300"></canvas>
+  
+  <script>
+    function calculate() {
+      // 入力された関数と値を取得
+      var expression = document.getElementById("function").value;
+      var lowerBound = parseFloat(document.getElementById("lowerBound").value);
+      var upperBound = parseFloat(document.getElementById("upperBound").value);
+      var tolerance = parseFloat(document.getElementById("tolerance").value);
+      
+      // 計算結果を表示する要素を取得
+      var resultElement = document.getElementById("result");
+      
+      // グラフを描画する要素とコンテキストを取得
+      var canvas = document.getElementById("graph");
+      var context = canvas.getContext("2d");
+      
+      // グラフの描画範囲を設定
+      var graphWidth = canvas.width;
+      var graphHeight = canvas.height;
+      var scaleX = graphWidth / (upperBound - lowerBound);
+      var scaleY = graphHeight / 10;  // 適切なスケーリングを設定してください
+      
+      // グラフをクリア
+      context.clearRect(0, 0, graphWidth, graphHeight);
+      
+      // 関数を描画
+      context.beginPath();
+      context.strokeStyle = "blue";
+      context.lineWidth = 2;
+      context.moveTo(0, calculateY(lowerBound));
+      
+      var x, y;
+      for (x = lowerBound; x <= upperBound; x += 0.01) {
+        y = calculateY(x);
+        context.lineTo((x - lowerBound) * scaleX, graphHeight - y * scaleY);
+      }
+      
+      context.stroke();
+      
+      // 二分法の計算
+      var iterations = 0;
+      var root;
+      while (upperBound - lowerBound > tolerance) {
+        var midpoint = (lowerBound + upperBound) / 2;
+        var fMidpoint = calculateY(midpoint);
+        
+        if (fMidpoint === 0) {
+          root = midpoint;
+          break;
+        } else if (calculateY(lowerBound) * fMidpoint < 0) {
+          upperBound = midpoint;
+        } else {
+          lowerBound = midpoint;
+        }
+        
+        iterations++;
+      }
+      
+      if (root !== undefined) {
+        resultElement.innerHTML = "計算結果: " + root + " (反復回数: " + iterations + ")";
+      } else {
+        resultElement.innerHTML = "計算結果が見つかりませんでした。";
+      }
+    }
+    
+    function calculateY(x) {
+      // 関数を実装してください
+      return Math.pow(x, 2) - 4;
+    }
+  </script>
+</body>
+</html>
+

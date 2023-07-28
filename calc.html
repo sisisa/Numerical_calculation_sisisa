@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>計算式の入力</title>
+  <script>
+    function calculate() {
+      // 入力された計算式と数値を取得
+      const expression = document.getElementById("expression").value;
+      const number1 = parseFloat(document.getElementById("number1").value);
+      const number2 = parseFloat(document.getElementById("number2").value);
+      
+      // 計算結果を表示する要素を取得
+      const resultElement = document.getElementById("result");
+      
+      // 計算式を実行
+      var result;
+      try {
+        result = eval(expression);
+        resultElement.innerHTML = "結果: " + result;
+      } catch (error) {
+        resultElement.innerHTML = "計算エラー: " + error;
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>計算式の入力</h1>
+  <label for="expression">計算式:</label>
+  <input type="text" id="expression" placeholder="例: number1 + number2"><br>
+  
+  <label for="number1">数値1:</label>
+  <input type="text" id="number1"><br>
+  
+  <label for="number2">数値2:</label>
+  <input type="text" id="number2"><br>
+  
+  <button onclick="calculate()">計算</button>
+  
+  <div id="result"></div>
+</body>
+</html>
