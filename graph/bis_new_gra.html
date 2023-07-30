@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>二分法とニュートン法のシミュレータ</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="plot1" style="width: 45%; display: inline-block;"></div>
+  <div id="plot2" style="width: 45%; display: inline-block;"></div>
+
+  <script>
+    // 解きたい方程式の関数
+    function func_f(x) {
+      return x * x - 2.0;
+    }
+
+    // 二分法の実装
+    function bisection(x_min, x_max, error = 1e-10, max_loop = 100) {
+      // 中間値の定理の条件を満たすか調べる
+      if (0.0 < func_f(x_min) * func_f(x_max)) {
+        console.error("error: Section definition is invalid (0.0 < func_f(x_min) * func_f(x_max)).");
+        return null;
+      }
+
+      // ずっと繰り返す
+      for (let num_calc = 1;; num_calc++) {
+        // 新たな中間値の計算
+        const x_mid = (x_max + x_min) / 2.0;
+
+        // 探索区間を更新
+        if (0.0 < func_f(x_mid) * func_f(x_max)) {
+          x_max = x_mid;  // 右端を更新
+        } else {
+          x_min = x_mid;  // 左端を更新
+        }
+
+        // 「誤差範囲が一定値以下」または「計算回数が一定値以上」ならば終了
+        if (x_max - x_min <= error || max_loop <= num_calc) {
+          return x_mid;
+        }
+      }
+    }
+
+    // ニュートン法の実装
+    function newton(initial_x, error = 1e-10, max_loop = 100) {
+      let x = initial_x;
+
+      for (let num_calc = 1; num_calc <= max_loop; num_calc++) {
+        const f_x = func_f(x);
+        const f_prime_x = (func_f(x + error) - func_f(x - error)) / (2 * error);
+        const x_new = x - f_x / f_prime_x;
+
+        if (Math.abs(x_new - x) <= error) {
+          return x_new;
+        }
+
+        x = x_new;
+      }
+
+      return null;
+    }
+
+    // 可視化
+    function visualization(x_min, x_max, x_solved_bisection, x_solved_newton) {
+      const trace1 = {
+        x: [],
+        y: [],
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+          color: '#ff0000',
+        },
+        name: '$f(x)$',
+      };
+
+      for (let x = x_min; x <= x_max; x += (x_max - x_min) / 500.0) {
+        trace1.x.push(x);
+        trace1.y.push(func_f(x));
+      }
+
+      const layout1 = {
+        xaxis: {
+          title: '$x$',
+        },
+        yaxis: {
+          title: '$f(x)$',
+        },
+        grid: {
+          // 点線の目盛りを表示
+          dash: 'dash',
+        },
+        shapes: [
+          // f(x) = 0の線
+          {
+            type: 'line',
+            x0: x_min,
+            x1: x_max,
+            y0: 0,
+            y1: 0,
+            line: {
+              color: '#000000',
+            },
+          },
+        ],
+      };
+
+      const data1 = [trace1];
+
+      // 二分法の数値解を点グラフで表示
+      data1.push({
+        x: [x_solved_bisection],
+        y: [0],
+        type: 'scatter',
+        mode: 'markers',
+        marker: {
+          color: '#0000ff',
+        },
+        name: '二分法の数値解',
+        text: [`$x$ = ${x_solved_bisection.toFixed(9)}`],
+        textposition: 'bottom',
+      });
+
+      Plotly.newPlot('plot1', data1, layout1);
+
+      const trace2 = {
+        x: [],
+        y: [],
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+          color: '#ff0000',
+        },
+        name: '$f(x)$',
+      };
+
+      for (let x = x_min; x <= x_max; x += (x_max - x_min) / 500.0) {
+        trace2.x.push(x);
+        trace2.y.push(func_f(x));
+      }
+
+      const layout2 = {
+        xaxis: {
+          title: '$x$',
+        },
+        yaxis: {
+          title: '$f(x)$',
+        },
+        grid: {
+          // 点線の目盛りを表示
+          dash: 'dash',
+        },
+        shapes: [
+          // f(x) = 0の線
+          {
+            type: 'line',
+            x0: x_min,
+            x1: x_max,
+            y0: 0,
+            y1: 0,
+            line: {
+              color: '#000000',
+            },
+          },
+        ],
+      };
+
+      const data2 = [trace2];
+
+      // ニュートン法の数値解を点グラフで表示
+      data2.push({
+        x: [x_solved_newton],
+        y: [0],
+        type: 'scatter',
+        mode: 'markers',
+        marker: {
+          color: '#00ff00',
+        },
+        name: 'ニュートン法の数値解',
+        text: [`$x$ = ${x_solved_newton.toFixed(9)}`],
+        textposition: 'bottom',
+      });
+
+      Plotly.newPlot('plot2', data2, layout2);
+    }
+
+    // メイン実行部
+    const x_min = -2.0;
+    const x_max = 2.0;
+
+    // 二分法で非線型方程式の解を計算
+    const solution_bisection = bisection(x_min, x_max);
+
+    // ニュートン法で非線型方程式の解を計算
+    const initial_x = -1.5;
+    const solution_newton = newton(initial_x);
+
+    if (solution_bisection !== null && solution_newton !== null) {
+      // 結果を可視化
+      visualization(solution_bisection - 1.0, solution_bisection + 1.0, solution_bisection, solution_newton);
+    }
+  </script>
+</body>
+</html>

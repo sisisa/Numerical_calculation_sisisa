@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>二分法とニュートン法のシミュレータ</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <h2>二分法とニュートン法のシミュレーション</h2>
+  <label for="equation">方程式: </label>
+  <input type="text" id="equation" value="x * x - 2.0" style="width: 300px;">
+  <br>
+  <label for="xMin">x_min: </label>
+  <input type="number" id="xMin" value="-2.0">
+  <br>
+  <label for="xMax">x_max: </label>
+  <input type="number" id="xMax" value="-1.0">
+  <br>
+  <button onclick="calculateAndVisualize()">計算と可視化</button>
+  <div id="plot"></div>
+
+  <script>
+    // 解きたい方程式の関数
+    function func_f(x, equation) {
+      return eval(equation);
+    }
+
+    // 二分法の実装
+    function bisection(x_min, x_max, equation, error = 1e-10, max_loop = 100) {
+      // 中間値の定理の条件を満たすか調べる
+      if (0.0 < func_f(x_min, equation) * func_f(x_max, equation)) {
+        console.error("error: Section definition is invalid (0.0 < func_f(x_min) * func_f(x_max)).");
+        return null;
+      }
+
+      // ずっと繰り返す
+      for (let num_calc = 1;; num_calc++) {
+        // 新たな中間値の計算
+        const x_mid = (x_max + x_min) / 2.0;
+
+        // 探索区間を更新
+        if (0.0 < func_f(x_mid, equation) * func_f(x_max, equation)) {
+          x_max = x_mid;  // 右端を更新
+        } else {
+          x_min = x_mid;  // 左端を更新
+        }
+
+        // 「誤差範囲が一定値以下」または「計算回数が一定値以上」ならば終了
+        if (x_max - x_min <= error || max_loop <= num_calc) {
+          return x_mid;
+        }
+      }
+    }
+
+    // 可視化
+    function visualization(x_min, x_max, x_solved, equation) {
+      const trace = {
+        x: [],
+        y: [],
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+          color: '#ff0000',
+        },
+        name: 'f(x)',
+      };
+
+      for (let x = x_min; x <= x_max; x += (x_max - x_min) / 500.0) {
+        trace.x.push(x);
+        trace.y.push(func_f(x, equation));
+      }
+
+      const layout = {
+        xaxis: {
+          title: 'x',
+        },
+        yaxis: {
+          title: 'f(x)',
+        },
+        grid: {
+          // 点線の目盛りを表示
+          dash: 'dash',
+        },
+        shapes: [
+          // f(x) = 0の線
+          {
+            type: 'line',
+            x0: x_min,
+            x1: x_max,
+            y0: 0,
+            y1: 0,
+            line: {
+              color: '#000000',
+            },
+          },
+        ],
+      };
+
+      const data = [trace];
+
+      // 数値解を点グラフで表示
+      data.push({
+        x: [x_solved],
+        y: [0],
+        type: 'scatter',
+        mode: 'markers',
+        marker: {
+          color: '#0000ff',
+        },
+        name: '数値解',
+        text: [`$x$ = ${x_solved.toFixed(9)}`],
+        textposition: 'bottom',
+      });
+
+      Plotly.newPlot('plot', data, layout);
+    }
+
+    function calculateAndVisualize() {
+      const equation = document.getElementById('equation').value;
+      const x_min = parseFloat(document.getElementById('xMin').value);
+      const x_max = parseFloat(document.getElementById('xMax').value);
+
+      // 二分法で非線型方程式の解を計算
+      const solution = bisection(x_min, x_max, equation);
+
+      if (solution !== null) {
+        // 結果を可視化
+        visualization(solution - 1.0, solution + 1.0, solution, equation);
+      }
+    }
+
+    // 初回実行
+    calculateAndVisualize();
+  </script>
+</body>
+</html>

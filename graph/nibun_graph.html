@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>グラフのテストコード</title>
+</head>
+<body>
+
+  <div>
+    <label for="bisectionInput">二分法の式:</label>
+    <input type="text" id="bisectionInput" value="x*x - 4">
+    <button id="submitBisection">二分法のグラフ描画</button>
+  </div>
+
+  <div id="plot1208"></div>
+  <div id="bisectionPlot"></div>
+
+  <script src="https://unpkg.com/mathjs@11.4.0/lib/browser/math.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  
+  <script>
+    
+
+    const buttonBisection = document.querySelector("#submitBisection")
+    buttonBisection.addEventListener('click', drawBisection)
+
+    function drawBisection(event) {
+      event.preventDefault()
+      const equation = document.querySelector('#bisectionInput').value
+      const func = math.parse(equation).compile()
+
+      const xValues = math.range(-10, 10, 0.1).toArray()
+      const yValues = xValues.map(function (x) {
+        return func.evaluate({x: x})
+      })
+
+      const trace1 = {
+        x: xValues,
+        y: yValues,
+        type: 'scatter'
+      }
+      const data = [trace1]
+      Plotly.newPlot('bisectionPlot', data)
+    }
+  </script>
+</body>
+</html>

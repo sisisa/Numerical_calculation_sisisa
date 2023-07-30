@@ -11,3 +11,5 @@ https://sci.tea-nifty.com/blog/2022/12/post-60d5fe.html
 
 # 二分法のグラフを作成
 
+# nib_new_honban.html
+本番のプログラム。ここにプログラムをまとめていく
