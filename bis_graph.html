@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>グラフのテストコード</title>
+</head>
+<body>
+  <!-- <div>
+    <label for="eq1208">描画したい式:</label>
+    <input type="text" id="eq1208" value="4 * sin(x) + 5 * cos(x/2)">
+    <button id="submit1208">計算式の入力</button>
+  </div> -->
+
+  <div>
+    <label for="bisectionInput">二分法の式:</label>
+    <input type="text" id="bisectionInput" value="x*x - 4">
+    <button id="submitBisection">二分法のグラフ描画</button>
+  </div>
+
+  <div id="plot1208"></div>
+  <div id="bisectionPlot"></div>
+
+  <script src="https://unpkg.com/mathjs@11.4.0/lib/browser/math.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    // const button1208 = document.querySelector("#submit1208")
+    // button1208.addEventListener('click', draw1208)
+
+    // function draw1208(event) {
+    //   event.preventDefault()
+    //   const expression = document.querySelector('#eq1208').value
+    //   const expr = math.compile(expression)
+
+    //   const xValues = math.range(-10, 10, 0.1).toArray()
+    //   const yValues = xValues.map(function (x) {
+    //     return expr.evaluate({x: x})
+    //   })
+
+    //   const trace1 = {
+    //     x: xValues,
+    //     y: yValues,
+    //     type: 'scatter'
+    //   }
+    //   const data = [trace1]
+    //   Plotly.newPlot('plot1208', data)
+    // }
+
+    const buttonBisection = document.querySelector("#submitBisection")
+    buttonBisection.addEventListener('click', drawBisection)
+
+    function drawBisection(event) {
+      event.preventDefault()
+      const equation = document.querySelector('#bisectionInput').value
+      const func = math.parse(equation).compile()
+
+      const xValues = math.range(-10, 10, 0.1).toArray()
+      const yValues = xValues.map(function (x) {
+        return func.evaluate({x: x})
+      })
+
+      const trace1 = {
+        x: xValues,
+        y: yValues,
+        type: 'scatter'
+      }
+      const data = [trace1]
+      Plotly.newPlot('bisectionPlot', data)
+    }
+  </script>
+</body>
+</html>
